@@ -37,7 +37,6 @@ exports.createReport = (req, res) => {
       res.status(500).json({
         error
       });
-      console.error(error);
     });
 };
 
