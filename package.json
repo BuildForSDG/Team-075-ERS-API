@@ -1,14 +1,15 @@
 {
-  "name": "js-starter",
+  "name": "emergency-response-system-api",
   "version": "0.0.1",
-  "description": "A boilerplate for starting js code",
+  "description": "Backend for the Emergency Response System application",
   "keywords": [
     "js-starter",
-    "boilerplate"
+    "boilerplate",
+    "Javascript"
   ],
   "private": false,
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/server.js",
+  "types": "dist/server.d.ts",
   "directories": {
     "test": "__tests__"
   },
@@ -17,31 +18,51 @@
     "test:watch": "jest --watch",
     "test:cover": "jest --coverage",
     "lint": "eslint \"src/**/*.js\"",
-    "start": "parcel ./src/index.html"
+    "build": "webpack --config-name production",
+    "build:dev": "set NODE_ENV=development&& webpack --config-name development",
+    "start": "node dist/server.bundle.js",
+    "start:dev": "nodemon dist/server.bundle.js"
   },
-  "author": {
-    "name": "Build For SDG",
-    "email": "buildforsdg@andela.com"
-  },
+  "author": "Build For SDG <buildforsdg@andela.com>",
   "homepage": "https://github.com/BuildForSDG/js-starter#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/BuildForSDG/js-starter.git"
+    "url": "git+https://github.com/BuildForSDG/js-starter.git"
   },
   "bugs": {
     "url": "https://github.com/BuildForSDG/js-starter/issues"
   },
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "@googlemaps/google-maps-services-js": "^2.6.0",
+    "@hapi/joi": "^17.1.1",
+    "bcrypt": "^4.0.1",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "geolib": "^3.2.1",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.15",
+    "mongoose": "^5.9.13",
+    "mongoose-unique-validator": "^2.0.3",
+    "nodemon": "^2.0.3",
+    "socket.io": "^2.3.0"
+  },
   "devDependencies": {
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "^7.9.5",
+    "@types/webpack": "^4.41.13",
     "babel-jest": "^25.4.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-plugin-import": "^2.20.2",
-    "jest": "^25.4.0",
-    "parcel-bundler": "^1.12.4"
+    "jest": "^26.0.1",
+    "parcel-bundler": "^1.12.4",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-node-externals": "^1.7.2",
+    "webpack-shell-plugin": "^0.5.0"
   },
   "browserslist": [
     "last 1 Chrome versions"
