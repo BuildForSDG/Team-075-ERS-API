@@ -2,6 +2,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const passport = require('../middleware/passportMiddleware');
 const User = require('../models/user');
 
 exports.signup = (req, res) => {
@@ -111,3 +112,21 @@ exports.edit = (req, res) => {
 // TODO: User - DELETE PROFILE
 
 // TODO: User - UPDATE PASSWORD
+
+exports.facebookLogin = (req, res, next) => {
+  passport.authenticate('facebook', { scope: ['email'] })(req, res);
+
+  return next();
+};
+
+exports.facebookLoginSuccess = (req, res) => {
+  res.status(200).json({
+    message: 'Facebook authentication successful!'
+  });
+};
+
+exports.facebookLoginFail = (req, res) => {
+  res.status(401).json({
+    error: 'Facebook authentication failed!'
+  });
+};

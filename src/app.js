@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const passport = require('./middleware/passportMiddleware');
 const userRoutes = require('./routes/user');
 const reportRoutes = require('./routes/report');
 const responeUnitRoutes = require('./routes/responseUnit');
@@ -26,6 +27,8 @@ mongoose
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
