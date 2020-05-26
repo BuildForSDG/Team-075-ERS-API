@@ -59,7 +59,7 @@ app.use('/api/auth', userRoutes);
 app.use('/api/report', reportRoutes);
 app.use('/api/response-unit', responeUnitRoutes);
 
-app.use((req, res, err) => {
+app.use((err, req, res, next) => {
   if (res.headersSent) {
     return;
   }
@@ -69,6 +69,8 @@ app.use((req, res, err) => {
       error: err.message || 'Internal Server Error'
     });
   }
+
+  next();
 });
 
 module.exports = app;

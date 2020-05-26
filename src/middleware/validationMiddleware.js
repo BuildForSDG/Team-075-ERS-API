@@ -14,7 +14,7 @@ const userSchema = joi.object({
 const reportSchema = joi.object({
   reporter: joi.object().keys({
     phoneNo: joi.string().pattern(/^([0-9])\d{10}$/).required(),
-    userId: joi.string()
+    userId: joi.string().required()
   }),
   location: joi.object({
     latitude: joi.string().required(),
