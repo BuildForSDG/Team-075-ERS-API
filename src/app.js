@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 const express = require('express');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
@@ -27,6 +28,7 @@ mongoose
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -48,6 +50,11 @@ app.use((req, res, next) => {
   }
 });
 
+app.get('/api', (req, res) => {
+  res.status(200).json({
+    message: 'Welcome'
+  });
+});
 app.use('/api/auth', userRoutes);
 app.use('/api/report', reportRoutes);
 app.use('/api/response-unit', responeUnitRoutes);
@@ -57,8 +64,11 @@ app.use((req, res, err) => {
     return;
   }
 
-  res.status(err.status || 500);
-  res.send(err.message || 'Internal Server Error');
+  if (err) {
+    res.status(err.status || 500).json({
+      error: err.message || 'Internal Server Error'
+    });
+  }
 });
 
 module.exports = app;
