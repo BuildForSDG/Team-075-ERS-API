@@ -18,7 +18,7 @@ passport.deserializeUser((obj, done) => {
 passport.use(new FacebookStrategy({
   clientID: process.env.FB_APP_ID,
   clientSecret: process.env.FB_APP_SECRET,
-  callbackURL: process.env.FB_CALLBACK_URL,
+  callbackURL: process.env.NODE_ENV === 'production' ? process.env.FB_CALLBACK_URL_PROD : process.env.FB_CALLBACK_URL,
   profileFields: ['id', 'displayName', 'name', 'emails', 'gender'],
   passReqToCallback: true
 }, (req, accessToken, refreshToken, profile, done) => {
@@ -53,7 +53,7 @@ passport.use(new FacebookStrategy({
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: process.env.GOOGLE_CALLBACK_URL
+  callbackURL: process.env.NODE_ENV === 'production' ? process.env.GOOGLE_CALLBACK_URL_PROD : process.env.GOOGLE_CALLBACK_URL
 }, (accessToken, refreshToken, profile, done) => {
   const {
     id, displayName, emails, provider
