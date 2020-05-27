@@ -8,8 +8,8 @@
     "Javascript"
   ],
   "private": false,
-  "main": "dist/server.js",
-  "types": "dist/server.d.ts",
+  "main": "build/server.bundle.js",
+  "types": "build/server.bundle.d.ts",
   "directories": {
     "test": "__tests__"
   },
@@ -20,8 +20,8 @@
     "lint": "eslint \"src/**/*.js\"",
     "build": "webpack --config-name production",
     "build:dev": "set NODE_ENV=development&& webpack --config-name development",
-    "start": "node dist/server.bundle.js",
-    "start:dev": "nodemon dist/server.bundle.js"
+    "start": "node build/server.bundle.js",
+    "start:dev": "nodemon build/server.bundle.js"
   },
   "author": "Build For SDG <buildforsdg@andela.com>",
   "homepage": "https://github.com/BuildForSDG/js-starter#readme",
@@ -38,17 +38,19 @@
     "@hapi/joi": "^17.1.1",
     "bcrypt": "^4.0.1",
     "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "geolib": "^3.2.1",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
-    "mongoose": "^5.9.13",
+    "mongoose": "^5.9.16",
     "mongoose-unique-validator": "^2.0.3",
     "nodemon": "^2.0.3",
     "passport": "^0.4.1",
     "passport-facebook": "^3.0.0",
+    "passport-google-oauth": "^2.0.0",
     "socket.io": "^2.3.0"
   },
   "devDependencies": {
@@ -68,5 +70,8 @@
   },
   "browserslist": [
     "last 1 Chrome versions"
-  ]
+  ],
+  "engines": {
+    "node": "13.x"
+  }
 }
