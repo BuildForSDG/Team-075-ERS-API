@@ -9,7 +9,7 @@ module.exports = [
     target: 'node',
     mode: 'production',
     output: {
-      path: path.resolve(__dirname, 'build'),
+      path: path.resolve(__dirname, 'dist'),
       filename: 'server.bundle.js'
     },
     node: {
@@ -27,7 +27,7 @@ module.exports = [
     mode: process.env.NODE_ENV,
     watch: process.env.NODE_ENV === 'development',
     output: {
-      path: path.resolve(__dirname, 'build'),
+      path: path.resolve(__dirname, 'dist'),
       filename: 'server.bundle.js'
     },
     node: {

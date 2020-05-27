@@ -8,8 +8,8 @@
     "Javascript"
   ],
   "private": false,
-  "main": "build/server.bundle.js",
-  "types": "build/server.bundle.d.ts",
+  "main": "dist/server.bundle.js",
+  "types": "dist/server.bundle.d.ts",
   "directories": {
     "test": "__tests__"
   },
@@ -20,8 +20,8 @@
     "lint": "eslint \"src/**/*.js\"",
     "build": "webpack --config-name production",
     "build:dev": "set NODE_ENV=development&& webpack --config-name development",
-    "start": "node build/server.bundle.js",
-    "start:dev": "nodemon build/server.bundle.js"
+    "start": "node dist/server.bundle.js",
+    "start:dev": "nodemon dist/server.bundle.js"
   },
   "author": "Build For SDG <buildforsdg@andela.com>",
   "homepage": "https://github.com/BuildForSDG/js-starter#readme",
