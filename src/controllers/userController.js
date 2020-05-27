@@ -5,6 +5,14 @@ const _ = require('lodash');
 const passport = require('../middleware/passportMiddleware');
 const User = require('../models/user');
 
+const signToken = (user) => jwt.sign({ user },
+  process.env.JWT_SECRET,
+  { expiresIn: '1.5 hrs' });
+
+const generateAccessToken = (userId) => jwt.sign({ userId },
+  process.env.JWT_SECRET,
+  { expiresIn: '1.5 hrs' });
+
 exports.signup = (req, res) => {
   bcrypt.hash(req.body.password, 10).then((hash) => {
     const user = new User({
@@ -18,9 +26,11 @@ exports.signup = (req, res) => {
       password: hash
     });
 
-    user.save().then(() => {
+    user.save().then((createdUser) => {
+      const token = generateAccessToken(createdUser._id);
       res.status(201).json({
-        message: 'Registration successful!'
+        message: 'Registration successful!',
+        token
       });
     }).catch((error) => {
       res.status(500).json({
@@ -44,9 +54,7 @@ exports.login = (req, res) => {
           });
         }
 
-        const token = jwt.sign({ userId: user._id },
-          'RANDOM_TOKEN_SECRET_STRING',
-          { expiresIn: '1h' });
+        const token = generateAccessToken(user._id);
 
         return res.status(200).json({
           userId: _.omit(user.toObject(), ['password', '__v', 'createdAt', 'modifiedAt']),
@@ -120,13 +128,41 @@ exports.facebookLogin = (req, res, next) => {
 };
 
 exports.facebookLoginSuccess = (req, res) => {
-  res.status(200).json({
-    message: 'Facebook authentication successful!'
-  });
+  res.status(200)
+    .cookie('jwt', signToken(req.user), {
+      httpOnly: true
+    })
+    .json({
+      message: 'Facebook authentication successful!'
+    });
 };
 
 exports.facebookLoginFail = (req, res) => {
   res.status(401).json({
     error: 'Facebook authentication failed!'
+  });
+};
+
+exports.googleLogin = (req, res, next) => {
+  passport.authenticate('google', {
+    scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
+  })(req, res);
+
+  next();
+};
+
+exports.googleLoginSuccess = (req, res) => {
+  res.status(200)
+    .cookie('jwt', signToken(req.user), {
+      httpOnly: true
+    })
+    .json({
+      message: 'Google authentication successful!'
+    });
+};
+
+exports.googleLoginFail = (req, res) => {
+  res.status(401).json({
+    error: 'Google authentication failed!'
   });
 };
