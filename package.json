@@ -8,8 +8,8 @@
     "Javascript"
   ],
   "private": false,
-  "main": "dist/server.js",
-  "types": "dist/server.d.ts",
+  "main": "dist/server.bundle.js",
+  "types": "dist/server.bundle.d.ts",
   "directories": {
     "test": "__tests__"
   },
@@ -70,5 +70,8 @@
   },
   "browserslist": [
     "last 1 Chrome versions"
-  ]
+  ],
+  "engines": {
+    "node": "13.x"
+  }
 }
