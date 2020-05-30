@@ -118,4 +118,29 @@ exports.updateResponseUnit = (req, res) => {
 
 // TODO: Reponse Unit - DELETE
 
-// TODO: Reponse Unit - UPDATE PASSWORD
+exports.changePassword = (req, res) => {
+  bcrypt.hash(req.body.password, 10).then((hash) => {
+    const responseUnit = new ResponseUnit({
+      _id: req.params.id,
+      password: hash
+    });
+
+    ResponseUnit.updateOne({ _id: req.params.id }, responseUnit)
+      .then(() => {
+        res.status(201).json({
+          message: 'Password updated successfully!'
+        });
+      })
+      .catch((error) => {
+        res.status(400).json({
+          error
+        });
+      });
+  });
+};
+
+exports.logout = (req, res) => {
+  res.status(200).clearCookie('jwt').json({
+    message: 'Cookie cleared successfully!'
+  });
+};

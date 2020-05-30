@@ -9,8 +9,10 @@ const userCtrl = require('../controllers/userController');
 
 router.post('/signup', userValidation, userCtrl.signup);
 router.post('/login', userCtrl.login);
-router.get('/profile/:id', auth, userCtrl.profile);
+router.post('/logout', userCtrl.logout);
 router.post('/profile/:id', auth, userCtrl.edit);
+router.post('/profile/:id/password', auth, userCtrl.changePassword);
+router.get('/profile/:id', auth, userCtrl.profile);
 router.get('/facebook', userCtrl.facebookLogin);
 router.get('/facebook/fail', userCtrl.facebookLoginFail);
 router.get('/facebook/callback', passport.authenticate('facebook', { scope: ['email'], failureRedirect: '/api/auth/facebook/fail' }), userCtrl.facebookLoginSuccess);

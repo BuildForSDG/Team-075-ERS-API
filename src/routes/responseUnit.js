@@ -8,8 +8,8 @@ const responseUnitCtrl = require('../controllers/responseUnitController');
 
 router.post('/signup', responseUnitValidation, responseUnitCtrl.signup);
 router.post('/login', responseUnitCtrl.login);
-router.get('/', auth, responseUnitCtrl.getAllResponseUnits);
-router.get('/:id', auth, responseUnitCtrl.getResponseUnit);
 router.post('/:id', auth, responseUnitCtrl.updateResponseUnit);
+router.get('/:id', auth, responseUnitCtrl.getResponseUnit);
+router.get('/', auth, responseUnitCtrl.getAllResponseUnits);
 
 module.exports = router;
