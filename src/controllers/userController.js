@@ -119,7 +119,26 @@ exports.edit = (req, res) => {
 
 // TODO: User - DELETE PROFILE
 
-// TODO: User - UPDATE PASSWORD
+exports.changePassword = (req, res) => {
+  bcrypt.hash(req.body.password, 10).then((hash) => {
+    const user = new User({
+      _id: req.params.id,
+      password: hash
+    });
+
+    User.updateOne({ _id: req.params.id }, user)
+      .then(() => {
+        res.status(201).json({
+          message: 'Password updated successfully!'
+        });
+      })
+      .catch((error) => {
+        res.status(400).json({
+          error
+        });
+      });
+  });
+};
 
 exports.facebookLogin = (req, res, next) => {
   passport.authenticate('facebook', { scope: ['email'] })(req, res);
@@ -130,6 +149,7 @@ exports.facebookLogin = (req, res, next) => {
 exports.facebookLoginSuccess = (req, res) => {
   res.status(200)
     .cookie('jwt', signToken(req.user), {
+      maxAge: 5400000,
       httpOnly: true
     })
     .json({
@@ -154,6 +174,7 @@ exports.googleLogin = (req, res, next) => {
 exports.googleLoginSuccess = (req, res) => {
   res.status(200)
     .cookie('jwt', signToken(req.user), {
+      maxAge: 5400000,
       httpOnly: true
     })
     .json({
@@ -164,5 +185,11 @@ exports.googleLoginSuccess = (req, res) => {
 exports.googleLoginFail = (req, res) => {
   res.status(401).json({
     error: 'Google authentication failed!'
+  });
+};
+
+exports.logout = (req, res) => {
+  res.status(200).clearCookie('jwt').json({
+    message: 'Cookie cleared successfully!'
   });
 };
