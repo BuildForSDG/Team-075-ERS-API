@@ -6,8 +6,8 @@ const userSchema = joi.object({
   password: joi.string().min(6).max(15).required(),
   phoneNo: joi.string().pattern(/^([0-9])\d{10}$/).required(),
   emergencyContact: joi.object({
-    name: joi.string().pattern(/^[_A-z0-9]*((-|\s)*[_A-z0-9])*$/).required(),
-    phoneNo: joi.string().pattern(/^([0-9])\d{10}$/).disallow(joi.ref('/phoneNo')).required()
+    name: joi.string().pattern(/^[_A-z0-9]*((-|\s)*[_A-z0-9])*$/),
+    phoneNo: joi.string().pattern(/^([0-9])\d{10}$/).disallow(joi.ref('/phoneNo'))
   })
 }).options({ stripUnknown: true });
 
@@ -44,6 +44,14 @@ const responseUnitsSchema = joi.array().min(1).items(joi.object().keys({
   latitude: joi.number().required(),
   longitude: joi.number().required()
 })).required();
+
+const responseUnitLocationSchema = joi.object({
+  name: joi.string().required(),
+  location: {
+    latitude: joi.number().required(),
+    longitude: joi.number().required()
+  }
+}).options({ stripUnknown: true });
 
 const userValidation = (req, res, next) => {
   const { error } = userSchema.validate(req.body);
@@ -105,9 +113,23 @@ const coordinatesValidation = (victimCoord, responseUnitCoord, next) => {
   return next();
 };
 
+const responseUnitLocationValidation = (req, res, next) => {
+  const { error } = responseUnitLocationSchema.validate(req.body);
+
+  if (error) {
+    return res.status(422).json({
+      message: 'Invalid data schema',
+      error
+    });
+  }
+
+  return next();
+};
+
 module.exports = {
   userValidation,
   reportValidation,
   responseUnitValidation,
-  coordinatesValidation
+  coordinatesValidation,
+  responseUnitLocationValidation
 };

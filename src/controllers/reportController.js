@@ -1,5 +1,7 @@
 const Report = require('../models/report');
-// const mapService = require('../services/map.service');
+const mapService = require('../services/map.service');
+
+const responeUnitsLocationFile = 'reponseUnitsCoordinates.json';
 
 exports.createReport = (req, res) => {
   const { reporter, location, imageUrl } = req.body;
@@ -95,6 +97,34 @@ exports.getReports = (req, res) => {
   })
     .catch((error) => {
       res.status(400).json({
+        error
+      });
+    });
+};
+
+exports.storeResponseUnitLocation = (req, res) => {
+  mapService.writeCoordinates(responeUnitsLocationFile, req.body)
+    .then(() => {
+      res.status(200).json({
+        message: 'Location stored successfully!'
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        error
+      });
+    });
+};
+
+exports.getResponseUnitsLocation = (req, res) => {
+  mapService.readCoordinates(responeUnitsLocationFile)
+    .then((locations) => {
+      res.status(200).json({
+        locations
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
         error
       });
     });
