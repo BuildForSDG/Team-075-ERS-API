@@ -6,8 +6,8 @@ const userSchema = joi.object({
   password: joi.string().min(6).max(15).required(),
   phoneNo: joi.string().pattern(/^([0-9])\d{10}$/).required(),
   emergencyContact: joi.object({
-    name: joi.string().pattern(/^[_A-z0-9]*((-|\s)*[_A-z0-9])*$/),
-    phoneNo: joi.string().pattern(/^([0-9])\d{10}$/).disallow(joi.ref('/phoneNo'))
+    name: joi.string().pattern(/^[_A-z0-9]*((-|\s)*[_A-z0-9])*$/).allow(''),
+    phoneNo: joi.string().pattern(/^([0-9])\d{10}$/).disallow(joi.ref('/phoneNo')).allow('')
   })
 }).options({ stripUnknown: true });
 
@@ -43,12 +43,12 @@ const responseUnitSchema = joi.object({
   })
 }).options({ stripUnknown: true });
 
-const victimLocationSchema = joi.object().keys({
+const victimLocationSchema = joi.object({
   latitude: joi.number().required(),
   longitude: joi.number().required()
 });
 
-const responseUnitsSchema = joi.array().min(1).items(joi.object().keys({
+const responseUnitsSchema = joi.array().min(1).items(joi.object({
   latitude: joi.number().required(),
   longitude: joi.number().required()
 })).required();

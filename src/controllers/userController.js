@@ -14,14 +14,26 @@ const generateAccessToken = (userId) => jwt.sign({ userId },
   { expiresIn: '1.5 hrs' });
 
 exports.signup = (req, res) => {
-  bcrypt.hash(req.body.password, 10).then((hash) => {
+  const {
+    password, name, email, phoneNo, emergencyContact
+  } = req.body;
+
+  User.findOne({ phoneNo, email })
+    .then(() => res.status(409).json({
+      error: 'Email or Phone No. already exists.'
+    }))
+    .catch((error) => res.status(500).json({
+      error
+    }));
+
+  bcrypt.hash(password, 10).then((hash) => {
     const user = new User({
-      name: req.body.name,
-      email: req.body.email,
-      phoneNo: req.body.phoneNo,
+      name,
+      email,
+      phoneNo,
       emergencyContact: {
-        name: req.body.emergencyContact.name,
-        phoneNo: req.body.emergencyContact.phoneNo
+        name: emergencyContact.name,
+        phoneNo: emergencyContact.phoneNo
       },
       password: hash
     });
