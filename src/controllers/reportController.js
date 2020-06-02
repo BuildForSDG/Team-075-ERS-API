@@ -49,22 +49,51 @@ exports.getReport = (req, res) => {
 };
 
 exports.modifyReport = (req, res) => {
+  const {
+    reporter: { userId, phoneNo },
+    location: { latitude, longitude },
+    response: {
+      status, responderId, acceptedAt, etaToLocation, arrivedAt
+    },
+    imageUrl
+  } = req.body;
+
   const report = new Report({
-    _id: req.params.id
+    _id: req.params.id,
+    reporter: {
+      userId,
+      phoneNo
+    },
+    location: {
+      latitude,
+      longitude
+    },
+    imageUrl,
+    response: {
+      status,
+      responder: responderId,
+      acceptedAt,
+      etaToLocation,
+      arrivedAt
+    }
   });
 
-  // TODO: Update Report Properties
-
-  Report.updateOne({ _id: req.params.id }, report)
-    .then(() => {
-      res.status(201).json({
-        message: 'Report updated successfully'
+  try {
+    Report.updateOne({ _id: req.params.id }, report)
+      .then(() => {
+        res.status(201).json({
+          message: 'Report updated successfully'
+        });
+      }).catch((error) => {
+        res.status(400).json({
+          error
+        });
       });
-    }).catch((error) => {
-      res.status(400).json({
-        error
-      });
+  } catch (error) {
+    res.status(400).json({
+      error
     });
+  }
 };
 
 exports.deleteReport = (req, res) => {

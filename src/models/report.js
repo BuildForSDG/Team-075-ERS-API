@@ -14,7 +14,7 @@ const reportSchema = mongoose.Schema({
   response: {
     status: { type: String, default: 'Respone Pending' },
     responder: { type: mongoose.Schema.Types.ObjectId, ref: 'responders' },
-    recievedAt: { type: Date },
+    acceptedAt: { type: Date },
     etaToLocation: { type: Number },
     arrivedAt: { type: Date }
   }

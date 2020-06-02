@@ -46,7 +46,7 @@ exports.login = (req, res) => {
         }
 
         const token = jwt.sign({ responseUnitId: responseUnit._id },
-          'RANDOM_TOKEN_SECRET_STRING',
+          process.env.JWT_SECRET_ADMIN,
           { expiresIn: '1h' });
 
         return res.status(200).json({

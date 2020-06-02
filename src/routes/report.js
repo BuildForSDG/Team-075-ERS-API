@@ -5,9 +5,11 @@ const reportCtrl = require('../controllers/reportController');
 
 const router = express.Router();
 
-router.get('/', auth, reportCtrl.getReports);
-router.post('/', auth, reportValidation, reportCtrl.createReport);
-router.post('/eru-location', responseUnitLocationValidation, reportCtrl.storeResponseUnitLocation);
-router.get('/eru-location', reportCtrl.getResponseUnitsLocation);
+router.get('/', auth('admin'), reportCtrl.getReports);
+router.get('/:id', auth('admin'), reportCtrl.getReport);
+router.get('/eru-location', auth('admin'), reportCtrl.getResponseUnitsLocation);
+router.post('/:id', auth(['admin', 'user']), reportValidation, reportCtrl.modifyReport);
+router.post('/', auth(['admin', 'user']), reportValidation, reportCtrl.createReport);
+router.post('/eru-location', auth('admin'), responseUnitLocationValidation, reportCtrl.storeResponseUnitLocation);
 
 module.exports = router;
