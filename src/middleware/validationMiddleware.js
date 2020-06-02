@@ -12,13 +12,21 @@ const userSchema = joi.object({
 }).options({ stripUnknown: true });
 
 const reportSchema = joi.object({
-  reporter: joi.object().keys({
+  reporter: joi.object({
     phoneNo: joi.string().pattern(/^([0-9])\d{10}$/).required(),
     userId: joi.string().required()
   }),
   location: joi.object({
     latitude: joi.string().required(),
     longitude: joi.string().required()
+  }),
+  imageUrl: joi.string(),
+  response: joi.object({
+    status: joi.string(),
+    responder: joi.string(),
+    acceptedAt: joi.date().timestamp(),
+    etaToLocation: joi.string(),
+    arrivedAt: joi.date().timestamp()
   })
 }).options({ stripUnknown: true });
 

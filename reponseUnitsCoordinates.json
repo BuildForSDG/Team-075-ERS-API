@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Response Unit 4",
+    "location": {
+      "latitude": 4.7114436,
+      "longitude": 1.9114436
+    }
+  },
+  {
+    "name": "Response Unit 3",
+    "location": {
+      "latitude": 2.7114436,
+      "longitude": 1.9114436
+    }
+  },
+  {
+    "name": "Response Unit 2",
+    "location": {
+      "latitude": 5.7114436,
+      "longitude": 5.9114436
+    }
+  },
+  {
+    "name": "Response Unit 1",
+    "location": {
+      "latitude": 9.6114103,
+      "longitude": 7.9129533
+    }
+  }
+]
