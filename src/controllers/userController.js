@@ -18,38 +18,42 @@ exports.signup = (req, res) => {
     password, name, email, phoneNo, emergencyContact
   } = req.body;
 
-  User.findOne({ phoneNo, email })
-    .then(() => res.status(409).json({
-      error: 'Email or Phone No. already exists.'
-    }))
+  User.findOne({ $or: [{ phoneNo }, { email }] })
+    .then((userFound) => {
+      if (userFound) {
+        return res.status(409).json({
+          error: 'Email or Phone No. already exists.'
+        });
+      }
+
+      return bcrypt.hash(password, 10).then((hash) => {
+        const user = new User({
+          name,
+          email,
+          phoneNo,
+          emergencyContact: {
+            name: emergencyContact.name,
+            phoneNo: emergencyContact.phoneNo
+          },
+          password: hash
+        });
+
+        user.save().then((createdUser) => {
+          const token = generateAccessToken(createdUser._id);
+          res.status(201).json({
+            message: 'Registration successful!',
+            token
+          });
+        }).catch((error) => {
+          res.status(500).json({
+            error
+          });
+        });
+      });
+    })
     .catch((error) => res.status(500).json({
       error
     }));
-
-  bcrypt.hash(password, 10).then((hash) => {
-    const user = new User({
-      name,
-      email,
-      phoneNo,
-      emergencyContact: {
-        name: emergencyContact.name,
-        phoneNo: emergencyContact.phoneNo
-      },
-      password: hash
-    });
-
-    user.save().then((createdUser) => {
-      const token = generateAccessToken(createdUser._id);
-      res.status(201).json({
-        message: 'Registration successful!',
-        token
-      });
-    }).catch((error) => {
-      res.status(500).json({
-        error
-      });
-    });
-  });
 };
 
 exports.login = (req, res) => {
