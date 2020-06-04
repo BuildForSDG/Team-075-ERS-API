@@ -12,29 +12,12 @@ const lodash = require('lodash');
 
 let destination = [];
 
-const getDistanceToNearestResponseUnit = (origin, destinations) => {
-  const nearestResponseUnit = geolib.findNearest(origin, destinations);
-  const client = new Client({});
-
-  return new Promise((resolve, reject) => {
-    client.directions({
-      params: {
-        origin,
-        destination: nearestResponseUnit,
-        mode: 'driving',
-        key: process.env.API_KEY
-      }
-    }).then((result) => {
-      if (result.data.status === Status.OK) {
-        resolve(result.data.routes);
-      }
-
-      resolve(result.data);
-    })
-      .catch((error) => reject(error));
-  });
-};
-
+/**
+ * Read the fie that contains the coordinates of all
+ * response units
+ *
+ * @param {String} filename
+ */
 const readCoordinates = (filename) => new Promise(((resolve, reject) => {
   fs.readFile(`./${filename}`, 'utf8', (err, data) => {
     if (err) { // File doesn't exist
@@ -58,6 +41,13 @@ const readCoordinates = (filename) => new Promise(((resolve, reject) => {
   });
 }));
 
+/**
+ * Write the response unit coordinates to
+ * coordinates file
+ *
+ * @param {string} filename
+ * @param {object} responseUnitObj
+ */
 const writeCoordinates = (filename, responseUnitObj) => new Promise((resolve, reject) => {
   const { location: { latitude, longitude }, name } = responseUnitObj;
   readCoordinates(filename)
@@ -104,6 +94,60 @@ const writeCoordinates = (filename, responseUnitObj) => new Promise((resolve, re
     .catch((error) => {
       reject(error);
     });
+});
+
+/**
+ * Calculate the nearest response unit
+ *
+ * @param {object} origin
+ * @param {object} destinations
+ */
+const getDistanceToNearestResponseUnit = (origin) => new Promise((resolve, reject) => {
+  // Read coordinates file
+  readCoordinates(process.env.ERS_GPS_COORDINATES_FILENAME)
+    .then((locationObj) => {
+      // Get location property only
+      const locations = lodash.map(locationObj, 'location');
+
+      if (locations) {
+        // Calculate nearest coordinates
+        const nearestCoordinates = geolib.findNearest(origin, locations);
+
+        // Get Reponse Unit Object belonging to nearest coordinates
+        const nearestResponseUnit = lodash.find(locationObj,
+          (responseUnit) => responseUnit.location === nearestCoordinates);
+
+        const client = new Client({});
+
+        /**
+         * Calculate the direction to/from the nearest
+         * response unit coordinates
+         */
+        client.directions({
+          params: {
+            origin,
+            destination: nearestCoordinates,
+            mode: 'driving',
+            key: process.env.API_KEY
+          }
+        }).then((result) => {
+          if (result.data.status === Status.OK) {
+            resolve({
+              routes: result.data.routes,
+              responseUnit: nearestResponseUnit
+            });
+          }
+
+          resolve(result.data);
+        })
+          .catch((error) => reject(error));
+      }
+
+      throw new Error({
+        error: 'No response unit coordinates found'
+      });
+    })
+    .catch((error) => error);
 });
 
 module.exports = {

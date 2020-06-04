@@ -1,7 +1,7 @@
 const Report = require('../models/report');
 const mapService = require('../services/map.service');
 
-const responeUnitsLocationFile = 'reponseUnitsCoordinates.json';
+const responeUnitsLocationFile = process.env.ERS_GPS_COORDINATES_FILENAME;
 
 exports.createReport = (req, res) => {
   const { reporter, location, imageUrl } = req.body;
@@ -18,9 +18,10 @@ exports.createReport = (req, res) => {
     imageUrl
   });
 
-  report.save().then(() => {
+  report.save().then((createdReport) => {
     res.status(200).json({
-      message: 'Report logged successfully!'
+      message: 'Report logged successfully!',
+      report: createdReport
     });
   })
     .catch((error) => {
@@ -150,6 +151,21 @@ exports.getResponseUnitsLocation = (req, res) => {
     .then((locations) => {
       res.status(200).json({
         locations
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        error
+      });
+    });
+};
+
+exports.getClosestResponseUnit = (req, res) => {
+  mapService.getDistanceToNearestResponseUnit(req.body)
+    .then((responseTeam) => {
+      res.status(200).json({
+        message: 'Successful',
+        responseTeam
       });
     })
     .catch((error) => {
