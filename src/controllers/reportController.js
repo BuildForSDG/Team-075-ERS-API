@@ -1,7 +1,4 @@
 const Report = require('../models/report');
-const mapService = require('../services/map.service');
-
-const responeUnitsLocationFile = process.env.ERS_GPS_COORDINATES_FILENAME;
 
 exports.createReport = (req, res) => {
   const { reporter, location, imageUrl } = req.body;
@@ -38,9 +35,15 @@ exports.getReport = (req, res) => {
     _id: req.params.id
   })
     .then((report) => {
-      res.status(200).json({
-        report
-      });
+      if (report) {
+        res.status(200).json({
+          report
+        });
+      } else {
+        res.status(404).json({
+          error: 'No report with that Id was found!'
+        });
+      }
     })
     .catch((error) => {
       res.status(404).json({
@@ -127,49 +130,6 @@ exports.getReports = (req, res) => {
   })
     .catch((error) => {
       res.status(400).json({
-        error
-      });
-    });
-};
-
-exports.storeResponseUnitLocation = (req, res) => {
-  mapService.writeCoordinates(responeUnitsLocationFile, req.body)
-    .then(() => {
-      res.status(200).json({
-        message: 'Location stored successfully!'
-      });
-    })
-    .catch((error) => {
-      res.status(500).json({
-        error
-      });
-    });
-};
-
-exports.getResponseUnitsLocation = (req, res) => {
-  mapService.readCoordinates(responeUnitsLocationFile)
-    .then((locations) => {
-      res.status(200).json({
-        locations
-      });
-    })
-    .catch((error) => {
-      res.status(500).json({
-        error
-      });
-    });
-};
-
-exports.getClosestResponseUnit = (req, res) => {
-  mapService.getDistanceToNearestResponseUnit(req.body)
-    .then((responseTeam) => {
-      res.status(200).json({
-        message: 'Successful',
-        responseTeam
-      });
-    })
-    .catch((error) => {
-      res.status(500).json({
         error
       });
     });

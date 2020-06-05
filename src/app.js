@@ -8,7 +8,7 @@ const dotenv = require('dotenv');
 const passport = require('./middleware/passportMiddleware');
 const userRoutes = require('./routes/user');
 const reportRoutes = require('./routes/report');
-const responeUnitRoutes = require('./routes/responseUnit');
+const responseUnitRoutes = require('./routes/responseUnit');
 
 dotenv.config();
 
@@ -57,7 +57,7 @@ app.get('/api', (req, res) => {
 });
 app.use('/api/auth', userRoutes);
 app.use('/api/report', reportRoutes);
-app.use('/api/response-unit', responeUnitRoutes);
+app.use('/api/response-unit', responseUnitRoutes);
 
 app.use((err, req, res, next) => {
   if (res.headersSent) {
