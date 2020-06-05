@@ -61,6 +61,13 @@ const responseUnitLocationSchema = joi.object({
   }
 }).options({ stripUnknown: true });
 
+/**
+ * Validate the User object
+ *
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const userValidation = (req, res, next) => {
   const { error } = userSchema.validate(req.body);
 
@@ -74,6 +81,13 @@ const userValidation = (req, res, next) => {
   return next();
 };
 
+/**
+ * Validate the Report object
+ *
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const reportValidation = (req, res, next) => {
   const { error } = reportSchema.validate(req.body);
 
@@ -87,6 +101,13 @@ const reportValidation = (req, res, next) => {
   return next();
 };
 
+/**
+ * Validate the Response Unit Object
+ *
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const responseUnitValidation = (req, res, next) => {
   const { error } = responseUnitSchema.validate(req.body);
 
@@ -121,6 +142,32 @@ const coordinatesValidation = (victimCoord, responseUnitCoord, next) => {
   return next();
 };
 
+/**
+ * Validate coordinates object
+ *
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
+const locationValidation = (req, res, next) => {
+  const { error } = victimLocationSchema.validate(req.body);
+
+  if (error) {
+    return res.status(422).json({
+      message: 'Invalid data schema'
+    });
+  }
+
+  return next();
+};
+
+/**
+ * Validate Reponse Unit Location Object
+ *
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const responseUnitLocationValidation = (req, res, next) => {
   const { error } = responseUnitLocationSchema.validate(req.body);
 
@@ -139,5 +186,6 @@ module.exports = {
   reportValidation,
   responseUnitValidation,
   coordinatesValidation,
+  locationValidation,
   responseUnitLocationValidation
 };

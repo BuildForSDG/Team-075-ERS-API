@@ -1,8 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const moment = require('moment');
+const { signToken } = require('../middleware/authMiddleware');
+const mapService = require('../services/map.service');
 const ResponseUnit = require('../models/responseUnit');
+
+const responeUnitsLocationFile = process.env.ERS_GPS_COORDINATES_FILENAME;
 
 exports.signup = (req, res) => {
   bcrypt.hash(req.body.password, 10).then((hash) => {
@@ -19,9 +23,13 @@ exports.signup = (req, res) => {
       password: hash
     });
 
-    responseUnit.save().then(() => {
+    responseUnit.save().then((createdUser) => {
+      // Generate a token for the user
+      const token = signToken(createdUser, 'admin');
+
       res.status(201).json({
-        message: 'Registration successful!'
+        message: 'Registration successful!',
+        token
       });
     }).catch((error) => {
       res.status(500).json({
@@ -35,19 +43,17 @@ exports.login = (req, res) => {
   ResponseUnit.findOne({ email: req.body.email }).then((responseUnit) => {
     if (!responseUnit) {
       res.status(401).json({
-        error: new Error('Username/Email not found!')
+        error: 'Username/Email not found!'
       });
     } else {
       bcrypt.compare(req.body.password, responseUnit.password).then((valid) => {
         if (!valid) {
           return res.status(401).json({
-            error: new Error('Incorrect password!')
+            error: 'Incorrect password!'
           });
         }
 
-        const token = jwt.sign({ responseUnitId: responseUnit._id },
-          process.env.JWT_SECRET_ADMIN,
-          { expiresIn: '1h' });
+        const token = signToken(responseUnit, 'admin');
 
         return res.status(200).json({
           responseUnit: _.omit(responseUnit.toObject(), ['password', '__v', 'createdAt', 'updatedAt']),
@@ -67,15 +73,22 @@ exports.login = (req, res) => {
 };
 
 exports.getResponseUnit = (req, res) => {
-  ResponseUnit.findOne({ _id: req.params.id }, { password: 0 }).then((responseUnit) => {
-    res.status(200).json({
-      responseUnit
+  ResponseUnit.findOne({ _id: req.params.id }, { password: 0 })
+    .then((responseUnit) => {
+      if (responseUnit) {
+        res.status(200).json({
+          responseUnit
+        });
+      } else {
+        res.status(404).json({
+          error: 'No Response Unit for that Id was found!'
+        });
+      }
+    }).catch((error) => {
+      res.status(404).json({
+        error
+      });
     });
-  }).catch((error) => {
-    res.status(404).json({
-      error
-    });
-  });
 };
 
 exports.getAllResponseUnits = (req, res) => {
@@ -143,4 +156,52 @@ exports.logout = (req, res) => {
   res.status(200).clearCookie('jwt').json({
     message: 'Cookie cleared successfully!'
   });
+};
+
+exports.storeResponseUnitLocation = (req, res) => {
+  req.body.createdAt = moment().format(); // Add timestamp
+  res.status(200).json({
+    data: req.body
+  });
+
+  // mapService.writeCoordinates(responeUnitsLocationFile, req.body)
+  //   .then(() => {
+  //     res.status(200).json({
+  //       message: 'Location stored successfully!'
+  //     });
+  //   })
+  //   .catch((error) => {
+  //     res.status(500).json({
+  //       error
+  //     });
+  //   });
+};
+
+exports.getResponseUnitsLocation = (req, res) => {
+  mapService.readCoordinates(responeUnitsLocationFile)
+    .then((locations) => {
+      res.status(200).json({
+        locations
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        error
+      });
+    });
+};
+
+exports.getClosestResponseUnit = (req, res) => {
+  mapService.getDistanceToNearestResponseUnit(req.body)
+    .then((responseTeam) => {
+      res.status(200).json({
+        message: 'Successful',
+        responseTeam
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        error
+      });
+    });
 };
