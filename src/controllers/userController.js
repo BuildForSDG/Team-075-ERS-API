@@ -1,55 +1,45 @@
 /* eslint-disable no-underscore-dangle */
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const { signToken } = require('../middleware/authMiddleware');
 const passport = require('../middleware/passportMiddleware');
 const User = require('../models/user');
 
-const signToken = (user) => jwt.sign({ user },
-  process.env.JWT_SECRET,
-  { expiresIn: '1.5 hrs' });
-
-const generateAccessToken = (userId) => jwt.sign({ userId },
-  process.env.JWT_SECRET,
-  { expiresIn: '1.5 hrs' });
-
 exports.signup = (req, res) => {
   const {
-    password, name, email, phoneNo, emergencyContact
+    password, name, email, phoneNo
   } = req.body;
 
   User.findOne({ $or: [{ phoneNo }, { email }] })
     .then((userFound) => {
       if (userFound) {
-        return res.status(409).json({
+        res.status(409).json({
           error: 'Email or Phone No. already exists.'
         });
+      } else {
+        bcrypt.hash(password, 10).then((hash) => {
+          const user = new User({
+            name,
+            email,
+            phoneNo,
+            password: hash
+          });
+
+          user.save().then((createdUser) => {
+            // Generate a token for the user
+            const token = signToken(createdUser);
+
+            res.status(201).json({
+              message: 'Registration successful!',
+              token
+            });
+          }).catch((error) => {
+            res.status(500).json({
+              error
+            });
+          });
+        });
       }
-
-      return bcrypt.hash(password, 10).then((hash) => {
-        const user = new User({
-          name,
-          email,
-          phoneNo,
-          emergencyContact: {
-            name: emergencyContact.name,
-            phoneNo: emergencyContact.phoneNo
-          },
-          password: hash
-        });
-
-        user.save().then((createdUser) => {
-          const token = generateAccessToken(createdUser._id);
-          res.status(201).json({
-            message: 'Registration successful!',
-            token
-          });
-        }).catch((error) => {
-          res.status(500).json({
-            error
-          });
-        });
-      });
     })
     .catch((error) => res.status(500).json({
       error
@@ -59,8 +49,8 @@ exports.signup = (req, res) => {
 exports.login = (req, res) => {
   User.findOne({ email: req.body.email }).then((user) => {
     if (!user) {
-      res.status(401).json({
-        error: new Error('Username/Email not found!')
+      res.status(404).json({
+        error: 'No account with that email was found!'
       });
     } else {
       bcrypt.compare(req.body.password, user.password).then((valid) => {
@@ -70,10 +60,10 @@ exports.login = (req, res) => {
           });
         }
 
-        const token = generateAccessToken(user._id);
+        const token = signToken(user);
 
         return res.status(200).json({
-          userId: _.omit(user.toObject(), ['password', '__v', 'createdAt', 'modifiedAt']),
+          user: _.omit(user.toObject(), ['password', '__v', 'createdAt', 'modifiedAt']),
           token
         });
       }).catch((error) => {

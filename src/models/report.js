@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
-const ms = require('../services/map.service');
 
 const reportSchema = mongoose.Schema({
   reporter: {
@@ -20,14 +19,6 @@ const reportSchema = mongoose.Schema({
     arrivedAt: { type: Date }
   }
 }, { timestamps: true });
-
-/**
- * Define a post middlware action for calculating the
- * nearest response unit
- */
-reportSchema.post('save', (doc) => {
-  ms.getDistanceToNearestResponseUnit(doc.location);
-});
 
 reportSchema.plugin(uniqueValidator);
 

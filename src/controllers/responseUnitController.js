@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const { signToken } = require('../middleware/authMiddleware');
 const ResponseUnit = require('../models/responseUnit');
 
 exports.signup = (req, res) => {
@@ -19,9 +19,13 @@ exports.signup = (req, res) => {
       password: hash
     });
 
-    responseUnit.save().then(() => {
+    responseUnit.save().then((createdUser) => {
+      // Generate a token for the user
+      const token = signToken(createdUser, 'admin');
+
       res.status(201).json({
-        message: 'Registration successful!'
+        message: 'Registration successful!',
+        token
       });
     }).catch((error) => {
       res.status(500).json({
@@ -35,19 +39,17 @@ exports.login = (req, res) => {
   ResponseUnit.findOne({ email: req.body.email }).then((responseUnit) => {
     if (!responseUnit) {
       res.status(401).json({
-        error: new Error('Username/Email not found!')
+        error: 'Username/Email not found!'
       });
     } else {
       bcrypt.compare(req.body.password, responseUnit.password).then((valid) => {
         if (!valid) {
           return res.status(401).json({
-            error: new Error('Incorrect password!')
+            error: 'Incorrect password!'
           });
         }
 
-        const token = jwt.sign({ responseUnitId: responseUnit._id },
-          process.env.JWT_SECRET_ADMIN,
-          { expiresIn: '1h' });
+        const token = signToken(responseUnit, 'admin');
 
         return res.status(200).json({
           responseUnit: _.omit(responseUnit.toObject(), ['password', '__v', 'createdAt', 'updatedAt']),

@@ -1,6 +1,6 @@
 const express = require('express');
 const passport = require('passport');
-const auth = require('../middleware/authMiddleware');
+const { auth } = require('../middleware/authMiddleware');
 const { userValidation } = require('../middleware/validationMiddleware');
 
 const router = express.Router();
@@ -12,7 +12,7 @@ router.post('/login', userCtrl.login);
 router.post('/logout', auth('user'), userCtrl.logout);
 router.post('/profile/:id', auth('user'), userCtrl.edit);
 router.post('/profile/:id/password', auth('user'), userCtrl.changePassword);
-router.get('/profile/:id', auth('user'), userCtrl.profile);
+router.get('/profile/:id', auth(['admin', 'user']), userCtrl.profile);
 router.get('/facebook', userCtrl.facebookLogin);
 router.get('/facebook/fail', userCtrl.facebookLoginFail);
 router.get('/facebook/callback', passport.authenticate('facebook', { scope: ['email'], failureRedirect: '/api/auth/facebook/fail' }), userCtrl.facebookLoginSuccess);
