@@ -49,7 +49,12 @@ const readCoordinates = (filename) => new Promise(((resolve, reject) => {
  * @param {object} responseUnitObj
  */
 const writeCoordinates = (filename, responseUnitObj) => new Promise((resolve, reject) => {
-  const { location: { latitude, longitude }, name } = responseUnitObj;
+  const {
+    location: { latitude, longitude },
+    name
+  } = responseUnitObj;
+
+  // read the coordinates in the json file
   readCoordinates(filename)
     .then((responseUnitCoordinates) => {
       const locations = responseUnitCoordinates;
