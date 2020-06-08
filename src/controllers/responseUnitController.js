@@ -160,21 +160,18 @@ exports.logout = (req, res) => {
 
 exports.storeResponseUnitLocation = (req, res) => {
   req.body.createdAt = moment().format(); // Add timestamp
-  res.status(200).json({
-    data: req.body
-  });
 
-  // mapService.writeCoordinates(responeUnitsLocationFile, req.body)
-  //   .then(() => {
-  //     res.status(200).json({
-  //       message: 'Location stored successfully!'
-  //     });
-  //   })
-  //   .catch((error) => {
-  //     res.status(500).json({
-  //       error
-  //     });
-  //   });
+  mapService.writeCoordinates(responeUnitsLocationFile, req.body)
+    .then(() => {
+      res.status(200).json({
+        message: 'Location stored successfully!'
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        error
+      });
+    });
 };
 
 exports.getResponseUnitsLocation = (req, res) => {

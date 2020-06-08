@@ -1,5 +1,8 @@
 const joi = require('@hapi/joi');
 
+/**
+ * Schema for Users
+ */
 const userSchema = joi.object({
   name: joi.string().pattern(/^[_A-z0-9]*((-|\s)*[_A-z0-9])*$/).required(),
   email: joi.string().email().required(),
@@ -11,6 +14,9 @@ const userSchema = joi.object({
   })
 }).options({ stripUnknown: true });
 
+/**
+ * Schema for Reports
+ */
 const reportSchema = joi.object({
   reporter: joi.object({
     phoneNo: joi.string().pattern(/^([0-9])\d{10}$/).required(),
@@ -20,6 +26,9 @@ const reportSchema = joi.object({
     latitude: joi.string().required(),
     longitude: joi.string().required()
   }),
+  type: joi.string(),
+  personsInvolved: joi.number(),
+  description: joi.string(),
   imageUrl: joi.string(),
   response: joi.object({
     status: joi.string(),
@@ -30,6 +39,9 @@ const reportSchema = joi.object({
   })
 }).options({ stripUnknown: true });
 
+/**
+ * Schema for Response Units
+ */
 const responseUnitSchema = joi.object({
   name: joi.string().required(),
   email: joi.string().email().required(),
@@ -43,6 +55,9 @@ const responseUnitSchema = joi.object({
   })
 }).options({ stripUnknown: true });
 
+/**
+ * Schema for Victim's Location
+ */
 const victimLocationSchema = joi.object({
   latitude: joi.number().required(),
   longitude: joi.number().required()
@@ -53,6 +68,9 @@ const responseUnitsSchema = joi.array().min(1).items(joi.object({
   longitude: joi.number().required()
 })).required();
 
+/**
+ * Schema for storing locations of response units
+ */
 const responseUnitLocationSchema = joi.object({
   name: joi.string().required(),
   location: {
@@ -121,6 +139,13 @@ const responseUnitValidation = (req, res, next) => {
   return next();
 };
 
+/**
+ * Validate Victim and Response Unit Coordinates
+ *
+ * @param {Object} victimCoord
+ * @param {Object} responseUnitCoord
+ * @param {*} next
+ */
 const coordinatesValidation = (victimCoord, responseUnitCoord, next) => {
   const { error: victimCoordinatesError } = victimLocationSchema.validate(victimCoord);
   const { error: responseUnitCoordinatesError } = responseUnitsSchema.validate(responseUnitCoord);
