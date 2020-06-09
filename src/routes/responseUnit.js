@@ -13,7 +13,7 @@ const responseUnitCtrl = require('../controllers/responseUnitController');
 
 router.post('/signup', responseUnitValidation, responseUnitCtrl.signup);
 router.post('/login', responseUnitCtrl.login);
-router.post('/id/:id', auth('admin'), responseUnitCtrl.updateResponseUnit);
+router.put('/id/:id', auth('admin'), responseUnitCtrl.updateResponseUnit);
 router.post('/location', responseUnitLocationValidation, responseUnitCtrl.storeResponseUnitLocation);
 router.post('/nearest-eru', locationValidation, responseUnitCtrl.getClosestResponseUnit);
 router.get('/location', responseUnitCtrl.getResponseUnitsLocation);

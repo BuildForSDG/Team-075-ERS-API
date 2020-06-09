@@ -26,8 +26,47 @@ exports.createReport = (req, res) => {
         error
       });
     });
+};
 
-  // TODO tie in mapService
+exports.createReportAsWitness = (req, res) => {
+  req.body = JSON.parse(req.body);
+  const url = `${req.protocol}://${req.get('host')}`;
+
+  const {
+    reporter,
+    location,
+    type,
+    personsInvolved,
+    description
+  } = req.body;
+
+
+  const report = new Report({
+    reporter: {
+      userId: reporter.userId,
+      phoneNo: reporter.phoneNo
+    },
+    location: {
+      latitude: location.latitude,
+      longitude: location.longitude
+    },
+    type,
+    personsInvolved,
+    description,
+    imageUrl: `${url}/images/${req.file.filename}`
+  });
+
+  report.save().then((createdReport) => {
+    res.status(200).json({
+      message: 'Report logged successfully!',
+      report: createdReport
+    });
+  })
+    .catch((error) => {
+      res.status(500).json({
+        error
+      });
+    });
 };
 
 exports.getReport = (req, res) => {
@@ -53,40 +92,80 @@ exports.getReport = (req, res) => {
 };
 
 exports.modifyReport = (req, res) => {
-  const {
-    reporter: { userId, phoneNo },
-    location: { latitude, longitude },
-    response: {
-      status, responderId, acceptedAt, etaToLocation, arrivedAt
-    },
-    type,
-    personsInvolved,
-    description,
-    imageUrl
-  } = req.body;
+  let report = new Report({ _id: req.params.id });
 
-  const report = new Report({
-    _id: req.params.id,
-    reporter: {
-      userId,
-      phoneNo
-    },
-    location: {
-      latitude,
-      longitude
-    },
-    type,
-    personsInvolved,
-    description,
-    imageUrl,
-    response: {
-      status,
-      responder: responderId,
-      acceptedAt,
-      etaToLocation,
-      arrivedAt
-    }
-  });
+  if (req.file) {
+    const url = `${req.protocol}://${req.get('host')}`;
+    req.body = JSON.parse(req.body);
+    const {
+      reporter: { userId, phoneNo },
+      location: { latitude, longitude },
+      response: {
+        status, responderId, acceptedAt, etaToLocation, arrivedAt
+      },
+      type,
+      personsInvolved,
+      description
+    } = req.body;
+
+    report = {
+      _id: req.params.id,
+      reporter: {
+        userId,
+        phoneNo
+      },
+      location: {
+        latitude,
+        longitude
+      },
+      type,
+      personsInvolved,
+      description,
+      imageUrl: `${url}/images/${req.file.filename}`,
+      response: {
+        status,
+        responder: responderId,
+        acceptedAt,
+        etaToLocation,
+        arrivedAt
+      }
+    };
+  } else {
+    const {
+      reporter: { userId, phoneNo },
+      location: { latitude, longitude },
+      response: {
+        status, responderId, acceptedAt, etaToLocation, arrivedAt
+      },
+      type,
+      personsInvolved,
+      description,
+      imageUrl
+    } = req.body;
+
+    report = {
+      _id: req.params.id,
+      reporter: {
+        userId,
+        phoneNo
+      },
+      location: {
+        latitude,
+        longitude
+      },
+      type,
+      personsInvolved,
+      description,
+      imageUrl,
+      response: {
+        status,
+        responder: responderId,
+        acceptedAt,
+        etaToLocation,
+        arrivedAt
+      }
+    };
+  }
 
   try {
     Report.updateOne({ _id: req.params.id }, report)
