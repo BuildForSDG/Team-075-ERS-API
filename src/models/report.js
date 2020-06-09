@@ -10,9 +10,12 @@ const reportSchema = mongoose.Schema({
     latitude: { type: String, required: true },
     longitude: { type: String, required: true }
   },
+  type: { type: String },
+  personsInvolved: { type: Number },
+  description: { type: String },
   imageUrl: { type: String },
   response: {
-    status: { type: String, default: 'Respone Pending' },
+    status: { type: String, default: 'Response Pending' },
     responder: { type: mongoose.Schema.Types.ObjectId, ref: 'responders' },
     acceptedAt: { type: Date },
     etaToLocation: { type: Number },

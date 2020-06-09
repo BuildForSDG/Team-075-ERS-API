@@ -59,6 +59,9 @@ exports.modifyReport = (req, res) => {
     response: {
       status, responderId, acceptedAt, etaToLocation, arrivedAt
     },
+    type,
+    personsInvolved,
+    description,
     imageUrl
   } = req.body;
 
@@ -72,6 +75,9 @@ exports.modifyReport = (req, res) => {
       latitude,
       longitude
     },
+    type,
+    personsInvolved,
+    description,
     imageUrl,
     response: {
       status,
