@@ -231,7 +231,10 @@ exports.deleteReport = (req, res) => {
  * Get all reports
  */
 exports.getReports = (req, res) => {
-  Report.find().then((reports) => {
+  Report.find().populate({
+    path: 'reporter.userId',
+    model: 'User'
+  }).then((reports) => {
     res.status(200).json({
       reports
     });
