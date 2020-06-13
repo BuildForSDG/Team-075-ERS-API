@@ -18,6 +18,21 @@ exports.subscribe = (req, res) => {
 };
 
 exports.getSubscription = (req, res) => {
+  Subscription.find({ endpoint: req.params.id })
+    .then((subscriptions) => {
+      res.status(200).json({
+        subscriptions
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        error,
+        message: 'Something went wrong while getting subscriptions!'
+      });
+    });
+};
+
+exports.getAllSubscriptions = (req, res) => {
   Subscription.find({ userId: req.params.id })
     .then((subscriptions) => {
       res.status(200).json({
@@ -33,8 +48,12 @@ exports.getSubscription = (req, res) => {
 };
 
 exports.updateSubscription = (req, res) => {
-  Subscription.findByIdAndUpdate(
-    { _id: req.params.id },
+  Subscription.findOneAndUpdate(
+    {
+      endpoint: {
+        $regex: `${req.params.id}`, $options: 'i'
+      }
+    },
     { userId: req.body.userId },
     { new: true }
   )
