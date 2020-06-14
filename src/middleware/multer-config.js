@@ -1,5 +1,5 @@
 const multer = require('multer');
-// const fs = require('fs');
+const fs = require('fs');
 
 const MIME_TYPES = {
   'image/jpg': 'jpg',
@@ -7,7 +7,7 @@ const MIME_TYPES = {
   'image/png': 'png'
 };
 
-const DIR = './images/';
+const DIR = './images';
 
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
@@ -17,6 +17,10 @@ const storage = multer.diskStorage({
     if (isValid) {
       error = null;
     }
+
+    // Create directory if it doesn't exist
+    fs.mkdirSync(DIR, { recursive: true });
+
     callback(error, DIR);
   },
   filename: (req, file, callback) => {
