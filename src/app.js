@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 const express = require('express');
 const bodyParser = require('body-parser');
+const cookieSession = require('cookie-session');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -29,26 +30,62 @@ mongoose
     console.error(error);
   });
 
-app.use(cors());
+const whitelist = [
+  'http://localhost:3000',
+  'https://dev.emresys.com:3001',
+  `${process.env.FRONTEND_URL}`
+];
+const corsOptionsDelegate = (req, callback) => {
+  let corsOptions;
+  if (whitelist.indexOf(req.header('Origin')) !== -1) {
+    // reflect (enable) the requested origin in the CORS response
+    corsOptions = { origin: true, credentials: true };
+  } else {
+    corsOptions = { origin: false, credentials: true }; // disable CORS for this request
+  }
+  callback(null, corsOptions); // callback expects two parameters: error and options
+};
+
+app.use(cors(corsOptionsDelegate));
+
+// app.use(cors({
+//   origin: 'http://localhost:3000',
+//   methods: 'GET, HEAD, PUT, PATCH, POST, DELETE',
+//   credentials: true
+// }));
+// app.use((req, res, next) => {
+//   res.setHeader('Access-Control-Allow-Origin', '*');
+//   res.setHeader(
+//     'Access-Control-Allow-Headers',
+//     'Origin, X-Requested-Width, Content, Accept, Content-Type, Authorization'
+//   );
+//   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+//   next();
+// });
+
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', '*');
+//   res.header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+//   res.header('Access-Control-Allow-Headers',
+//    'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+//   next();
+// });
+
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-  extended: true
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieSession({
+  name: 'session',
+  keys: [process.env.SESSION_SECRET],
+  maxAge: 24 * 60 * 60 * 100,
+  sameSite: 'none',
+  secure: true,
+  httpOnly: false
 }));
 app.use(cookieParser());
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(express.static(path.join(__dirname, '../public')));
-
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-Width, Content, Accept, Content-Type, Authorization'
-  );
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-  next();
-});
 
 app.use((req, res, next) => {
   if (!req.body) {

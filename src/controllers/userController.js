@@ -5,6 +5,7 @@ const { signToken } = require('../middleware/authMiddleware');
 const passport = require('../middleware/passportMiddleware');
 const User = require('../models/user');
 
+// Sign a user up
 exports.signup = (req, res) => {
   const {
     password, name, email, phoneNo
@@ -46,6 +47,7 @@ exports.signup = (req, res) => {
     }));
 };
 
+// Login a user
 exports.login = (req, res) => {
   User.findOne({ email: req.body.email }).then((user) => {
     if (!user) {
@@ -99,6 +101,7 @@ exports.profile = (req, res) => {
     });
 };
 
+// Edit a user's details
 exports.edit = (req, res) => {
   const user = new User({
     _id: req.params.id,
@@ -125,6 +128,7 @@ exports.edit = (req, res) => {
 
 // TODO: User - DELETE PROFILE
 
+// Update a user's password
 exports.changePassword = (req, res) => {
   bcrypt.hash(req.body.password, 10).then((hash) => {
     const user = new User({
@@ -146,29 +150,46 @@ exports.changePassword = (req, res) => {
   });
 };
 
+// Auth with Facebook
 exports.facebookLogin = (req, res, next) => {
   passport.authenticate('facebook', { scope: ['email'] })(req, res);
 
   return next();
 };
 
-exports.facebookLoginSuccess = (req, res) => {
-  res.status(200)
-    .cookie('jwt', signToken(req.user), {
-      maxAge: 5400000,
-      httpOnly: true
-    })
-    .json({
-      message: 'Facebook authentication successful!'
-    });
-};
+// Send success message when Facebook / Google login is successful
+exports.socialLoginSuccess = (req, res) => {
+  if (req.user) {
+    const { user, cookies } = req;
+    res.status(200)
+      .cookie('jwt', signToken(user), {
+        maxAge: 5400000,
+        secure: true,
+        sameSite: 'none'
+      })
+      .json({
+        message: `${user.provider} authentication successful!`,
+        success: true,
+        user,
+        cookies
+      });
+  }
 
-exports.facebookLoginFail = (req, res) => {
   res.status(401).json({
-    error: 'Facebook authentication failed!'
+    message: `User authentication through google or facebook failed.`,
+    success: false
   });
 };
 
+// Send failed msg when Facebook login is unsuccessful
+exports.facebookLoginFail = (req, res) => {
+  res.status(401).json({
+    message: 'Facebook authentication failed!',
+    success: false
+  });
+};
+
+// Auth with Google
 exports.googleLogin = (req, res, next) => {
   passport.authenticate('google', {
     scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
@@ -177,24 +198,40 @@ exports.googleLogin = (req, res, next) => {
   next();
 };
 
+// Send success message when Google login is successful
 exports.googleLoginSuccess = (req, res) => {
-  res.status(200)
-    .cookie('jwt', signToken(req.user), {
-      maxAge: 5400000,
-      httpOnly: true
-    })
-    .json({
-      message: 'Google authentication successful!'
-    });
+  if (req.user) {
+    const { user, cookies } = req;
+    res.status(200)
+      .cookie('jwt', signToken(req.user), {
+        maxAge: 5400000,
+        secure: true,
+        sameSite: 'none'
+      })
+      .json({
+        message: 'Google authentication successful!',
+        success: true,
+        user,
+        cookies
+      });
+  }
+
+  res.status(401).json({
+    message: 'User not authenticated through facebook',
+    success: false
+  });
 };
 
+// Send failed msg when Google login is unsuccessful
 exports.googleLoginFail = (req, res) => {
   res.status(401).json({
-    error: 'Google authentication failed!'
+    message: 'Google authentication failed!',
+    success: false
   });
 };
 
 exports.logout = (req, res) => {
+  req.logout();
   res.status(200).clearCookie('jwt').json({
     message: 'Cookie cleared successfully!'
   });
