@@ -1,4 +1,8 @@
+/* eslint-disable no-console */
+/* eslint-disable no-underscore-dangle */
 const Report = require('../models/report');
+const sendPushNotification = require('../services/pushNotification.service');
+const mapService = require('../services/map.service');
 
 /**
  * Create a report
@@ -23,6 +27,53 @@ exports.createReport = (req, res) => {
       message: 'Report logged successfully!',
       report: createdReport
     });
+
+    console.log('About to contact response team');
+    // Get closest response unit and notify via pushNotification
+    mapService.getDistanceToNearestResponseUnit(location)
+      .then((result) => {
+        console.log('Response Team identified');
+        // Notification Payload for Response Unit
+        const notificationPayload = {
+          title: 'New Accident',
+          message: 'Accident close by, Help needed immediately.',
+          url: process.env.FRONTEND_URL,
+          data: location,
+          tag: ['Emergency Response System', 'Accident'],
+          userId: result.responseUnit._id
+        };
+
+        // Notification Payload for Reporter
+        const reporterNotificationPayload = {
+          title: 'Response Team Notified',
+          message: 'The nearest response unit available has been notified.',
+          url: process.env.FRONTEND_URL,
+          data: result.responseUnit.name,
+          tag: ['Emergency Response System', 'Accident'],
+          userId: reporter.userId
+        };
+
+        // Send notification to response unit
+        sendPushNotification(notificationPayload)
+          .then((notificationResult) => {
+            console.info(notificationResult);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+
+        // Send notification to reporter
+        sendPushNotification(reporterNotificationPayload)
+          .then((notificationResult) => {
+            console.info(notificationResult);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   })
     .catch((error) => {
       res.status(500).json({
